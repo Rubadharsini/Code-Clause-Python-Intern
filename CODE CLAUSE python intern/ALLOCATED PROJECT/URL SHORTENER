@@ -1,0 +1,31 @@
+
+#URL shortener using bit.ly API
+import requests
+name="o_7vhnm7ga7k"
+key="Bit@2k23"
+
+#getting the acces token
+authRes=requests.post("https://api-ssl.bitly.com/oauth/access_token",auth=(name,key))
+if authRes.status_code==200:
+    access_token=authRes.content.decode()
+    print("Access token generated",access_token)
+else:
+    print("Error generating access token",authRes.status_code)
+    exit()
+
+#constructing the request headers
+
+groupRes=requests.get("https://api-ssl.bitly.com/v4/groups",headers={"Authorization": "Bearer "+access_token})
+if groupRes.status_code==200:
+    group_data=groupRes.json()['groups'][0]
+    guid=group_data['guid']
+else:
+    print("Error fetching group data",groupRes.status_code)
+    exit()
+#the url tht needs to be shortened
+url=input("Enter the url: ")
+shorten_url=requests.post("https://api-ssl.bitly.com/v4/shorten",json={"group_guid":guid,"long_url":url},headers={"Authorization": "Bearer "+access_token})
+if shorten_url.status_code==200:
+    link=shorten_url.json().get("link")
+    print("Shortened url is",link)
+
